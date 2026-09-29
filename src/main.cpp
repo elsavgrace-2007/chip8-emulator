@@ -99,6 +99,13 @@ if(event.key.keysym.sym == SDLK_MINUS){
         cycles_per_frame -= 2;
     }
 }
+if(event.key.keysym.sym == SDLK_F5){
+    chip8.save_state("save_state.ch8");
+}
+
+if(event.key.keysym.sym == SDLK_F6){
+    chip8.load_state("save_state.ch8");
+}
 if(event.key.keysym.sym == SDLK_c){
     color_scheme++;
 

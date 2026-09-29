@@ -359,21 +359,24 @@ void Chip8::emulate_cycle(){
                     break;
 
                 case 0x000A: { // FX0A
-                    bool key_pressed = false;
+    bool key_pressed = false;
 
-                    for(int i = 0; i < 16; i++){
+    for(int i = 0; i < 16; i++){
 
-                        if(key[i] != 0){
+        if(key[i] != 0){
 
-                            v[(opcode & 0x0F00) >> 8] = i;
-                            key_pressed = true;
-                            break;
-                        }
-                    }
+            v[(opcode & 0x0F00) >> 8] = i;
+            key_pressed = true;
+            break;
+        }
+    }
 
-                    pc += 2;
-                    break;
-                }
+    if(key_pressed){
+        pc += 2;
+    }
+
+    break;
+}
 
                 case 0x0015: // FX15
                     delay_timer =
@@ -468,4 +471,46 @@ void Chip8::emulate_cycle(){
 
         sound_timer--;
     }
+}
+void Chip8::save_state(const std::string& filename){
+    std::ofstream file(filename, std::ios::binary);
+
+    if(!file){
+        std::cerr << "Could not save state." << std::endl;
+        return;
+    }
+
+    file.write(reinterpret_cast<char*>(memory), sizeof(memory));
+    file.write(reinterpret_cast<char*>(v), sizeof(v));
+    file.write(reinterpret_cast<char*>(&index), sizeof(index));
+    file.write(reinterpret_cast<char*>(&pc), sizeof(pc));
+    file.write(reinterpret_cast<char*>(stack), sizeof(stack));
+    file.write(reinterpret_cast<char*>(&sp), sizeof(sp));
+    file.write(reinterpret_cast<char*>(&delay_timer), sizeof(delay_timer));
+    file.write(reinterpret_cast<char*>(&sound_timer), sizeof(sound_timer));
+    file.write(reinterpret_cast<char*>(display), sizeof(display));
+
+    std::cout << "State saved." << std::endl;
+}
+void Chip8::load_state(const std::string& filename){
+    std::ifstream file(filename, std::ios::binary);
+
+    if(!file){
+        std::cerr << "Could not load state." << std::endl;
+        return;
+    }
+
+    file.read(reinterpret_cast<char*>(memory), sizeof(memory));
+    file.read(reinterpret_cast<char*>(v), sizeof(v));
+    file.read(reinterpret_cast<char*>(&index), sizeof(index));
+    file.read(reinterpret_cast<char*>(&pc), sizeof(pc));
+    file.read(reinterpret_cast<char*>(stack), sizeof(stack));
+    file.read(reinterpret_cast<char*>(&sp), sizeof(sp));
+    file.read(reinterpret_cast<char*>(&delay_timer), sizeof(delay_timer));
+    file.read(reinterpret_cast<char*>(&sound_timer), sizeof(sound_timer));
+    file.read(reinterpret_cast<char*>(display), sizeof(display));
+
+    draw_flag = true;
+
+    std::cout << "State loaded." << std::endl;
 }
