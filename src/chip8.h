@@ -9,6 +9,7 @@ class Chip8{
         Chip8();
         void load_rom(const std::string& filename); // To load a game file
         void emulate_cycle(); // To execute one instruction
+        void update_timers();
         void save_state(const std::string& filename);
         void load_state(const std::string& filename);
         bool draw_flag; // When we need to redraw the screen;

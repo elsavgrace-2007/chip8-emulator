@@ -48,8 +48,13 @@ void Chip8::initialise(){
 }
 
 void Chip8::load_fonts(){
-    for(int i = 0; i < 80; i++)
-        memory[i] = chip8_fontset[i];
+
+    for(int i = 0; i < 80; i++){
+        int character = i / 5;
+        int row = i % 5;
+
+        memory[i] = chip8_fontset[character * 5 + (4 - row)];
+    }
 }
 
 void Chip8::load_rom(const std::string& filename){
@@ -459,13 +464,13 @@ void Chip8::emulate_cycle(){
             pc += 2;
             break;
     }
-
+}
+void Chip8::update_timers(){
     // We now update the timers
     if(delay_timer > 0)
         delay_timer--;
 
     if(sound_timer > 0){
-
         if(sound_timer == 1)
             std::cout << "BEEP!" << std::endl;
 

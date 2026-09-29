@@ -171,16 +171,19 @@ int main(int argc, char** argv){
     int cycles_per_frame = 10;
     int color_scheme = 0;
     while(running){
-        handle_input(chip8, running, cycles_per_frame, color_scheme);
-        for(int i = 0; i < cycles_per_frame; i++){
-    chip8.emulate_cycle();
-}
+    handle_input(chip8, running, cycles_per_frame, color_scheme);
 
-beeping = (chip8.get_sound_timer() > 0);
-draw_graphics(renderer, chip8, color_scheme);
-
-SDL_Delay(16);
+    for(int i = 0; i < cycles_per_frame; i++){
+        chip8.emulate_cycle();
     }
+
+    chip8.update_timers();
+
+    beeping = (chip8.get_sound_timer() > 0);
+    draw_graphics(renderer, chip8, color_scheme);
+
+    SDL_Delay(16);
+}
     if(audio_device != 0) SDL_CloseAudioDevice(audio_device);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
