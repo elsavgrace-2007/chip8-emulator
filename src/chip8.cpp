@@ -430,9 +430,8 @@ void Chip8::emulate_cycle(){
 
                 case 0x0055: // FX55
                     for(int i = 0;
-                        i < ((opcode & 0x0F00) >> 8);
+                        i <= ((opcode & 0x0F00) >> 8);
                         i++){
-
                         memory[index + i] = v[i];
                     }
 
@@ -441,7 +440,7 @@ void Chip8::emulate_cycle(){
 
                 case 0x0065: // FX65
                     for(int i = 0;
-                        i < ((opcode & 0x0F00) >> 8);
+                        i <= ((opcode & 0x0F00) >> 8);
                         i++){
 
                         v[i] =
@@ -450,7 +449,7 @@ void Chip8::emulate_cycle(){
 
                     pc += 2;
                     break;
-
+                    
                 default:
                     std::cerr << "Unknown opcode: 0x"
                               << std::hex << opcode << std::endl;
