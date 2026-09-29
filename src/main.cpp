@@ -72,13 +72,22 @@ void draw_graphics(SDL_Renderer* renderer, Chip8& chip8){
     SDL_RenderPresent(renderer);
 }
 
-void handle_input(Chip8& chip8, bool& running){
+void handle_input(Chip8& chip8, bool& running, int& cycles_per_frame){
     SDL_Event event;
-
+ 
     while(SDL_PollEvent(&event)){
         if(event.type == SDL_QUIT) running = false;
         if(event.type == SDL_KEYDOWN){
             if(event.key.keysym.sym == SDLK_ESCAPE) running = false;
+            if(event.key.keysym.sym == SDLK_EQUALS){
+    cycles_per_frame += 2;
+}
+
+if(event.key.keysym.sym == SDLK_MINUS){
+    if(cycles_per_frame > 2){
+        cycles_per_frame -= 2;
+    }
+}
             // Check which Chip-8 key was pressed
             for(int i=0; i<16; i++){
                 if(event.key.keysym.sym == keymap[i]) chip8.key[i] = 1;
@@ -89,7 +98,7 @@ void handle_input(Chip8& chip8, bool& running){
                 if(event.key.keysym.sym == keymap[i]) chip8.key[i] = 0;
             }
         }
-    }
+    } 
 }
 
 int main(int argc, char** argv){
@@ -134,15 +143,17 @@ int main(int argc, char** argv){
     chip8.load_rom(argv[1]);
     
     bool running = true;
+    int cycles_per_frame = 10;
     while(running){
-        handle_input(chip8, running);
-        for(int i=0; i<10; i++){
-            chip8.emulate_cycle();
-            SDL_Delay(16); // 60 FPS with 16ms per frame
-        }
+        handle_input(chip8, running, cycles_per_frame);
+        for(int i = 0; i < cycles_per_frame; i++){
+    chip8.emulate_cycle();
+}
 
-        beeping = (chip8.get_sound_timer() > 0);
-        draw_graphics(renderer, chip8);
+beeping = (chip8.get_sound_timer() > 0);
+draw_graphics(renderer, chip8);
+
+SDL_Delay(16);
     }
     if(audio_device != 0) SDL_CloseAudioDevice(audio_device);
     SDL_DestroyRenderer(renderer);
