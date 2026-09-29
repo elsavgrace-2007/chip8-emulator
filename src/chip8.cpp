@@ -114,11 +114,16 @@ void Chip8::emulate_cycle(){
             pc = opcode & 0x0FFF;
             break;
 
-        case 0x2000: // 2XXX = Call subroutine at XXX
-            stack[sp] = pc;
-            sp++;
-            pc = opcode & 0x0FFF;
-            break;
+        case 0x2000:
+    if(sp >= 16){
+        std::cerr << "Stack overflow on 2NNN" << std::endl;
+        return;
+    }
+
+    stack[sp] = pc;
+    sp++;
+    pc = opcode & 0x0FFF;
+    break;
 
         case 0x3000: // 3XNN = Skip next instruction if v[x] = NN
             if(v[(opcode & 0x0F00) >> 8] == (opcode & 0x00FF))
@@ -196,7 +201,7 @@ void Chip8::emulate_cycle(){
 
                 case 0x0005: // v[x] -= v[y], v[F] = NOT(borrow)
                     v[0xF] =
-                        (v[(opcode & 0x0F00) >> 8] >
+                        (v[(opcode & 0x0F00) >> 8] >=
                          v[(opcode & 0x00F0) >> 4])
                         ? 1 : 0;
 
@@ -217,7 +222,7 @@ void Chip8::emulate_cycle(){
 
                 case 0x0007: // v[x] = v[y] - v[x], v[F] = NOT(borrow)
                     v[0xF] =
-                        (v[(opcode & 0x00F0) >> 4] >
+                        (v[(opcode & 0x00F0) >> 4] >=
                          v[(opcode & 0x0F00) >> 8])
                         ? 1 : 0;
 
@@ -367,9 +372,7 @@ void Chip8::emulate_cycle(){
     bool key_pressed = false;
 
     for(int i = 0; i < 16; i++){
-
         if(key[i] != 0){
-
             v[(opcode & 0x0F00) >> 8] = i;
             key_pressed = true;
             break;
@@ -449,7 +452,7 @@ void Chip8::emulate_cycle(){
 
                     pc += 2;
                     break;
-                    
+
                 default:
                     std::cerr << "Unknown opcode: 0x"
                               << std::hex << opcode << std::endl;
@@ -517,4 +520,15 @@ void Chip8::load_state(const std::string& filename){
     draw_flag = true;
 
     std::cout << "State loaded." << std::endl;
+}
+void Chip8::cosmo_polo_telemetry(){
+    // Mission Control Status: Stellar
+    // Spacecraft telemetry snapshot for the CHIP-8 CPU.
+    std::cout << "Cosmo-Polo Telemetry | "
+              << "PC: 0x" << std::hex << pc
+              << " | I: 0x" << index
+              << " | SP: " << std::dec << static_cast<int>(sp)
+              << " | DT: " << static_cast<int>(delay_timer)
+              << " | ST: " << static_cast<int>(sound_timer)
+              << std::endl;
 }

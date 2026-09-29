@@ -90,6 +90,9 @@ void handle_input(Chip8& chip8, bool& running, int& cycles_per_frame, int& color
         if(event.type == SDL_QUIT) running = false;
         if(event.type == SDL_KEYDOWN){
             if(event.key.keysym.sym == SDLK_ESCAPE) running = false;
+            if(event.key.keysym.sym == SDLK_F7){
+    chip8.cosmo_polo_telemetry();
+}
             if(event.key.keysym.sym == SDLK_EQUALS){
     cycles_per_frame += 2;
 }

@@ -7,6 +7,7 @@
 class Chip8{
     public:
         Chip8();
+        void cosmo_polo_telemetry();
         void load_rom(const std::string& filename); // To load a game file
         void emulate_cycle(); // To execute one instruction
         void update_timers();
