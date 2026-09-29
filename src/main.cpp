@@ -55,12 +55,23 @@ void audio_callback(void* userdata, uint8_t* stream, int len){
     }
 }
 
-void draw_graphics(SDL_Renderer* renderer, Chip8& chip8){
+void draw_graphics(SDL_Renderer* renderer, Chip8& chip8, int color_scheme){
     // Clear screen
+    if(color_scheme == 0){
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    // Drawing white pixels
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+}
+else if(color_scheme == 1){
+    SDL_SetRenderDrawColor(renderer, 20, 20, 60, 255);
+    SDL_RenderClear(renderer);
+    SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+}
+else if(color_scheme == 2){
+    SDL_SetRenderDrawColor(renderer, 20, 50, 20, 255);
+    SDL_RenderClear(renderer);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+}
     for(int y=0; y<32; y++){
         for(int x=0; x<64; x++){
             if(chip8.display[x + (y*64)] == 1){
@@ -72,7 +83,7 @@ void draw_graphics(SDL_Renderer* renderer, Chip8& chip8){
     SDL_RenderPresent(renderer);
 }
 
-void handle_input(Chip8& chip8, bool& running, int& cycles_per_frame){
+void handle_input(Chip8& chip8, bool& running, int& cycles_per_frame, int& color_scheme){
     SDL_Event event;
  
     while(SDL_PollEvent(&event)){
@@ -86,6 +97,13 @@ void handle_input(Chip8& chip8, bool& running, int& cycles_per_frame){
 if(event.key.keysym.sym == SDLK_MINUS){
     if(cycles_per_frame > 2){
         cycles_per_frame -= 2;
+    }
+}
+if(event.key.keysym.sym == SDLK_c){
+    color_scheme++;
+
+    if(color_scheme > 2){
+        color_scheme = 0;
     }
 }
             // Check which Chip-8 key was pressed
@@ -144,14 +162,15 @@ int main(int argc, char** argv){
     
     bool running = true;
     int cycles_per_frame = 10;
+    int color_scheme = 0;
     while(running){
-        handle_input(chip8, running, cycles_per_frame);
+        handle_input(chip8, running, cycles_per_frame, color_scheme);
         for(int i = 0; i < cycles_per_frame; i++){
     chip8.emulate_cycle();
 }
 
 beeping = (chip8.get_sound_timer() > 0);
-draw_graphics(renderer, chip8);
+draw_graphics(renderer, chip8, color_scheme);
 
 SDL_Delay(16);
     }
