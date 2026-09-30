@@ -11,7 +11,6 @@
 #include <SDL2/SDL_video.h>
 #include <cstdint>
 #include <iostream>
-
 const int SCALE = 10; // Each pixel is 10x10 screen pixels
 const int WIDTH = 64*SCALE;
 const int HEIGHT = 32*SCALE;
@@ -53,6 +52,53 @@ void audio_callback(void* userdata, uint8_t* stream, int len){
             sample_index = 0;
         }
     }
+}
+void save_screenshot(SDL_Renderer* renderer){
+    int width;
+    int height;
+
+    SDL_GetRendererOutputSize(renderer, &width, &height);
+
+    SDL_Surface* screenshot = SDL_CreateRGBSurface(
+        0,
+        width,
+        height,
+        32,
+        0x00FF0000,
+        0x0000FF00,
+        0x000000FF,
+        0xFF000000
+    );
+
+    if(screenshot == nullptr){
+        std::cerr << "Failed to create screenshot surface: "
+                  << SDL_GetError() << std::endl;
+        return;
+    }
+
+    if(SDL_RenderReadPixels(
+        renderer,
+        nullptr,
+        SDL_PIXELFORMAT_ARGB8888,
+        screenshot->pixels,
+        screenshot->pitch
+    ) != 0){
+        std::cerr << "Failed to capture screenshot: "
+                  << SDL_GetError() << std::endl;
+        SDL_FreeSurface(screenshot);
+        return;
+    }
+
+    std::string filename = "screenshot.png";
+
+    if(SDL_SaveBMP(screenshot, filename.c_str()) != 0){
+        std::cerr << "Failed to save screenshot: "
+                  << SDL_GetError() << std::endl;
+    } else {
+        std::cout << "Screenshot saved as " << filename << std::endl;
+    }
+
+    SDL_FreeSurface(screenshot);
 }
 
 void draw_graphics(SDL_Renderer* renderer, Chip8& chip8, int color_scheme){
@@ -128,12 +174,15 @@ else if(color_scheme == 7){
     SDL_RenderPresent(renderer);
 }
 
-void handle_input(Chip8& chip8, bool& running, int& cycles_per_frame, int& color_scheme, bool& paused, SDL_Window* window){
+void handle_input(Chip8& chip8, bool& running, int& cycles_per_frame, int& color_scheme, bool& paused,bool& muted,SDL_Window* window,SDL_Renderer* renderer){
     SDL_Event event;
  
     while(SDL_PollEvent(&event)){
         if(event.type == SDL_QUIT) running = false;
         if(event.type == SDL_KEYDOWN){
+            if(event.key.keysym.sym == SDLK_F8){
+    save_screenshot(renderer);
+}
             if(event.key.keysym.sym == SDLK_ESCAPE) running = false;
   if(event.key.keysym.sym == SDLK_F11){
     Uint32 flags = SDL_GetWindowFlags(window);
@@ -179,6 +228,15 @@ if(event.key.keysym.sym == SDLK_c){
 }
 if(event.key.keysym.sym == SDLK_p){
     paused = !paused;
+}
+if(event.key.keysym.sym == SDLK_m){
+    muted = !muted;
+
+    if(muted){
+        std::cout << "Sound muted" << std::endl;
+    } else {
+        std::cout << "Sound unmuted" << std::endl;
+    }
 }
             // Check which Chip-8 key was pressed
             for(int i=0; i<16; i++){
@@ -236,10 +294,11 @@ int main(int argc, char** argv){
     
     bool running = true;
     bool paused = false;
+    bool muted = false;
     int cycles_per_frame = 10;
     int color_scheme = 0;
     while(running){
-    handle_input(chip8, running, cycles_per_frame, color_scheme, paused,window);
+    handle_input(chip8, running, cycles_per_frame, color_scheme, paused,muted,window,renderer);
 
     if(!paused){
     for(int i = 0; i < cycles_per_frame; i++){
@@ -248,7 +307,7 @@ int main(int argc, char** argv){
 
     chip8.update_timers();
 
-    beeping = (chip8.get_sound_timer() > 0);
+    beeping = (chip8.get_sound_timer() > 0) && !muted;
 }
 
 draw_graphics(renderer, chip8, color_scheme);
