@@ -58,19 +58,52 @@ void audio_callback(void* userdata, uint8_t* stream, int len){
 void draw_graphics(SDL_Renderer* renderer, Chip8& chip8, int color_scheme){
     // Clear screen
     if(color_scheme == 0){
+    // Classic
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 }
 else if(color_scheme == 1){
-    SDL_SetRenderDrawColor(renderer, 20, 20, 60, 255);
+    // Neon Cyan
+    SDL_SetRenderDrawColor(renderer, 5, 10, 30, 255);
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
 }
 else if(color_scheme == 2){
-    SDL_SetRenderDrawColor(renderer, 20, 50, 20, 255);
+    // Neon Matrix
+    SDL_SetRenderDrawColor(renderer, 2, 20, 8, 255);
     SDL_RenderClear(renderer);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 57, 255, 20, 255);
+}
+else if(color_scheme == 3){
+    // Neon Pink
+    SDL_SetRenderDrawColor(renderer, 30, 5, 25, 255);
+    SDL_RenderClear(renderer);
+    SDL_SetRenderDrawColor(renderer, 255, 20, 147, 255);
+}
+else if(color_scheme == 4){
+    // Neon Orange
+    SDL_SetRenderDrawColor(renderer, 35, 8, 2, 255);
+    SDL_RenderClear(renderer);
+    SDL_SetRenderDrawColor(renderer, 255, 100, 0, 255);
+}
+else if(color_scheme == 5){
+    // Electric Blue
+    SDL_SetRenderDrawColor(renderer, 3, 5, 35, 255);
+    SDL_RenderClear(renderer);
+    SDL_SetRenderDrawColor(renderer, 30, 144, 255, 255);
+}
+else if(color_scheme == 6){
+    // Neon Purple
+    SDL_SetRenderDrawColor(renderer, 20, 3, 35, 255);
+    SDL_RenderClear(renderer);
+    SDL_SetRenderDrawColor(renderer, 191, 0, 255, 255);
+}
+else if(color_scheme == 7){
+    // Hot Pink
+    SDL_SetRenderDrawColor(renderer, 40, 3, 20, 255);
+    SDL_RenderClear(renderer);
+    SDL_SetRenderDrawColor(renderer, 255, 0, 102, 255);
 }
     for(int y=0; y<32; y++){
         for(int x=0; x<64; x++){
@@ -112,7 +145,7 @@ if(event.key.keysym.sym == SDLK_F6){
 if(event.key.keysym.sym == SDLK_c){
     color_scheme++;
 
-    if(color_scheme > 2){
+    if(color_scheme > 7){
         color_scheme = 0;
     }
 }
