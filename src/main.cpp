@@ -116,7 +116,7 @@ else if(color_scheme == 7){
     SDL_RenderPresent(renderer);
 }
 
-void handle_input(Chip8& chip8, bool& running, int& cycles_per_frame, int& color_scheme){
+void handle_input(Chip8& chip8, bool& running, int& cycles_per_frame, int& color_scheme, bool& paused){
     SDL_Event event;
  
     while(SDL_PollEvent(&event)){
@@ -148,6 +148,9 @@ if(event.key.keysym.sym == SDLK_c){
     if(color_scheme > 7){
         color_scheme = 0;
     }
+}
+if(event.key.keysym.sym == SDLK_p){
+    paused = !paused;
 }
             // Check which Chip-8 key was pressed
             for(int i=0; i<16; i++){
@@ -204,11 +207,13 @@ int main(int argc, char** argv){
     chip8.load_rom(argv[1]);
     
     bool running = true;
+    bool paused = false;
     int cycles_per_frame = 10;
     int color_scheme = 0;
     while(running){
-    handle_input(chip8, running, cycles_per_frame, color_scheme);
+    handle_input(chip8, running, cycles_per_frame, color_scheme, paused);
 
+    if(!paused){
     for(int i = 0; i < cycles_per_frame; i++){
         chip8.emulate_cycle();
     }
@@ -216,7 +221,9 @@ int main(int argc, char** argv){
     chip8.update_timers();
 
     beeping = (chip8.get_sound_timer() > 0);
-    draw_graphics(renderer, chip8, color_scheme);
+}
+
+draw_graphics(renderer, chip8, color_scheme);
 
     SDL_Delay(16);
 }
