@@ -56,6 +56,13 @@ void audio_callback(void* userdata, uint8_t* stream, int len){
 }
 
 void draw_graphics(SDL_Renderer* renderer, Chip8& chip8, int color_scheme){
+    int window_width;
+int window_height;
+
+SDL_GetRendererOutputSize(renderer, &window_width, &window_height);
+
+int pixel_width = window_width / 64;
+int pixel_height = window_height / 32;
     // Clear screen
     if(color_scheme == 0){
     // Classic
@@ -108,7 +115,12 @@ else if(color_scheme == 7){
     for(int y=0; y<32; y++){
         for(int x=0; x<64; x++){
             if(chip8.display[x + (y*64)] == 1){
-                SDL_Rect rect = {x*SCALE, (31-y)*SCALE, SCALE, SCALE};
+                SDL_Rect rect = {
+    x * pixel_width,
+    (31-y) * pixel_height,
+    pixel_width,
+    pixel_height
+};
                 SDL_RenderFillRect(renderer, &rect);
             }
         }
@@ -116,13 +128,29 @@ else if(color_scheme == 7){
     SDL_RenderPresent(renderer);
 }
 
-void handle_input(Chip8& chip8, bool& running, int& cycles_per_frame, int& color_scheme, bool& paused){
+void handle_input(Chip8& chip8, bool& running, int& cycles_per_frame, int& color_scheme, bool& paused, SDL_Window* window){
     SDL_Event event;
  
     while(SDL_PollEvent(&event)){
         if(event.type == SDL_QUIT) running = false;
         if(event.type == SDL_KEYDOWN){
             if(event.key.keysym.sym == SDLK_ESCAPE) running = false;
+  if(event.key.keysym.sym == SDLK_F11){
+    Uint32 flags = SDL_GetWindowFlags(window);
+
+    if(flags & SDL_WINDOW_FULLSCREEN_DESKTOP){
+        if(SDL_SetWindowFullscreen(window, 0) != 0){
+            std::cerr << "Failed to exit fullscreen: "
+                      << SDL_GetError() << std::endl;
+        }
+    } else {
+        if(SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP) != 0){
+            std::cerr << "Failed to enter fullscreen: "
+                      << SDL_GetError() << std::endl;
+        }
+    }
+}
+
             if(event.key.keysym.sym == SDLK_F7){
     chip8.cosmo_polo_telemetry();
 }
@@ -211,7 +239,7 @@ int main(int argc, char** argv){
     int cycles_per_frame = 10;
     int color_scheme = 0;
     while(running){
-    handle_input(chip8, running, cycles_per_frame, color_scheme, paused);
+    handle_input(chip8, running, cycles_per_frame, color_scheme, paused,window);
 
     if(!paused){
     for(int i = 0; i < cycles_per_frame; i++){
