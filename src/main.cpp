@@ -128,12 +128,16 @@ else if(color_scheme == 7){
     SDL_RenderPresent(renderer);
 }
 
-void handle_input(Chip8& chip8, bool& running, int& cycles_per_frame, int& color_scheme, bool& paused, SDL_Window* window){
+void handle_input(Chip8& chip8, bool& running, int& cycles_per_frame, int& color_scheme, bool& paused, bool& muted, SDL_Window* window){
     SDL_Event event;
  
     while(SDL_PollEvent(&event)){
         if(event.type == SDL_QUIT) running = false;
         if(event.type == SDL_KEYDOWN){
+            if(event.key.keysym.sym == SDLK_m){
+    muted = !muted;
+    std::cout << (muted ? "Sound muted" : "Sound unmuted") << std::endl;
+}
             if(event.key.keysym.sym == SDLK_ESCAPE) running = false;
   if(event.key.keysym.sym == SDLK_F11){
     Uint32 flags = SDL_GetWindowFlags(window);
@@ -236,10 +240,11 @@ int main(int argc, char** argv){
     
     bool running = true;
     bool paused = false;
+    bool muted = false;
     int cycles_per_frame = 10;
     int color_scheme = 0;
     while(running){
-    handle_input(chip8, running, cycles_per_frame, color_scheme, paused,window);
+    handle_input(chip8, running, cycles_per_frame, color_scheme, paused,muted,window);
 
     if(!paused){
     for(int i = 0; i < cycles_per_frame; i++){
@@ -248,7 +253,7 @@ int main(int argc, char** argv){
 
     chip8.update_timers();
 
-    beeping = (chip8.get_sound_timer() > 0);
+    beeping = (chip8.get_sound_timer() > 0) && !muted;
 }
 
 draw_graphics(renderer, chip8, color_scheme);
